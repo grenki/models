@@ -57,5 +57,6 @@ def load_dataset(root_dir):
 
         res_img.extend(img)
         res_labels.extend(labels)
+        break
 
     return res_img, res_labels
