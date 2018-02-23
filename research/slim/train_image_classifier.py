@@ -426,7 +426,7 @@ def main(_):
     with tf.device(deploy_config.inputs_device()):
 
       image, label = util.load_dataset(FLAGS.dataset_dir)
-      label = tf.convert_to_tensor(label)
+      label = tf.convert_to_tensor(label, dtype=tf.uint8)
 
       train_image_size = FLAGS.train_image_size or network_fn.default_image_size
 
