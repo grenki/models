@@ -56,7 +56,7 @@ def load_dataset(root_dir):
         labels = np.load(os.path.join(labels_folder, dir + '.npy'))
 
         res_img.extend(img)
-        res_labels.extend(labels)
+        res_labels.extend(np.uint8(labels))
         break
 
     return res_img, res_labels
