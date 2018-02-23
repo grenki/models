@@ -14,12 +14,12 @@
 # ==============================================================================
 """Generic training script that trains a model using a given dataset."""
 
-from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
 import tensorflow as tf
 
+import util
 from datasets import dataset_factory
 from deployment import model_deploy
 from nets import nets_factory
@@ -187,7 +187,7 @@ tf.app.flags.DEFINE_string(
     'as `None`, then the model_name flag is used.')
 
 tf.app.flags.DEFINE_integer(
-    'batch_size', 32, 'The number of samples in each batch.')
+    'batch_size', 2, 'The number of samples in each batch.')
 
 tf.app.flags.DEFINE_integer(
     'train_image_size', None, 'Train image size')
@@ -378,6 +378,8 @@ def _get_variables_to_train():
     variables_to_train.extend(variables)
   return variables_to_train
 
+num_classes = 2
+num_samples = 1600
 
 def main(_):
   if not FLAGS.dataset_dir:
@@ -399,18 +401,14 @@ def main(_):
     with tf.device(deploy_config.variables_device()):
       global_step = slim.create_global_step()
 
-    ######################
-    # Select the dataset #
-    ######################
-    dataset = dataset_factory.get_dataset(
-        FLAGS.dataset_name, FLAGS.dataset_split_name, FLAGS.dataset_dir)
+
 
     ######################
     # Select the network #
     ######################
     network_fn = nets_factory.get_network_fn(
         FLAGS.model_name,
-        num_classes=(dataset.num_classes - FLAGS.labels_offset),
+        num_classes=(num_classes),
         weight_decay=FLAGS.weight_decay,
         is_training=True)
 
@@ -426,25 +424,28 @@ def main(_):
     # Create a dataset provider that loads data from the dataset #
     ##############################################################
     with tf.device(deploy_config.inputs_device()):
-      provider = slim.dataset_data_provider.DatasetDataProvider(
-          dataset,
-          num_readers=FLAGS.num_readers,
-          common_queue_capacity=20 * FLAGS.batch_size,
-          common_queue_min=10 * FLAGS.batch_size)
-      [image, label] = provider.get(['image', 'label'])
-      label -= FLAGS.labels_offset
+
+      image, label = util.load_dataset(FLAGS.dataset_dir)
+      label = tf.convert_to_tensor(label)
 
       train_image_size = FLAGS.train_image_size or network_fn.default_image_size
 
-      image = image_preprocessing_fn(image, train_image_size, train_image_size)
+      image = [image_preprocessing_fn(i, train_image_size, train_image_size) for i in image]
+      image = tf.stack(image)
 
       images, labels = tf.train.batch(
           [image, label],
           batch_size=FLAGS.batch_size,
           num_threads=FLAGS.num_preprocessing_threads,
-          capacity=5 * FLAGS.batch_size)
+          capacity=5 * FLAGS.batch_size,
+          enqueue_many=True) #, allow_smaller_final_batch=True)
+      # labels = tf.train.batch(
+      #     label,
+      #     batch_size=FLAGS.batch_size,
+      #     num_threads=FLAGS.num_preprocessing_threads,
+      #     capacity=5 * FLAGS.batch_size) #, allow_smaller_final_batch=True)
       labels = slim.one_hot_encoding(
-          labels, dataset.num_classes - FLAGS.labels_offset)
+          labels, num_classes)
       batch_queue = slim.prefetch_queue.prefetch_queue(
           [images, labels], capacity=2 * deploy_config.num_clones)
 
@@ -507,7 +508,7 @@ def main(_):
     # Configure the optimization procedure. #
     #########################################
     with tf.device(deploy_config.optimizer_device()):
-      learning_rate = _configure_learning_rate(dataset.num_samples, global_step)
+      learning_rate = _configure_learning_rate(num_samples, global_step)
       optimizer = _configure_optimizer(learning_rate)
       summaries.add(tf.summary.scalar('learning_rate', learning_rate))
 
