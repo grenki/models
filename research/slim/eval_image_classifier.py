@@ -14,16 +14,15 @@
 # ==============================================================================
 """Generic evaluation script that evaluates a model using a given dataset."""
 
-from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
 import os
 
+import util
 import numpy as np
 import tensorflow as tf
 from nets import nets_factory
-from preprocessing import preprocessing_factory
 
 slim = tf.contrib.slim
 
@@ -106,33 +105,11 @@ def main(_):
                 num_classes=NUM_CLASSES,
                 is_training=False)
 
-            def load_img(img_path):
-                img_contents = tf.read_file(img_path)
-                return tf.image.decode_png(img_contents, channels=3)
-                # img_r, img_g, img_b = tf.split(axis=2, num_or_size_splits=3, value=img)
-                # img = tf.cast(tf.concat(axis=2, values=[img_b, img_g, img_r]), dtype=tf.float32)
-            image_names = [f for f in os.listdir(dir_path) if f.endswith(".png")]
-            image_paths = [os.path.join(dir_path, f) for f in image_names]
-            print(len(image_paths))
-            # image_paths_ph = tf.placeholder(tf.string, [len(image_paths)])
-            img_name = map(load_img, image_paths)
+            image_names, img = util.load_images(dir_path, FLAGS, FLAGS.eval_image_size or network_fn.default_image_size)
+            if not image_names:
+                continue
 
-            #####################################
-            # Select the preprocessing function #
-            #####################################
-            preprocessing_name = FLAGS.preprocessing_name or FLAGS.model_name
-            image_preprocessing_fn = preprocessing_factory.get_preprocessing(
-                preprocessing_name,
-                is_training=False)
-
-            eval_image_size = FLAGS.eval_image_size or network_fn.default_image_size
-
-            img_name = [image_preprocessing_fn(i, eval_image_size, eval_image_size) for i in img_name]
-            img_name = tf.stack(img_name)
-
-            # image = tf.expand_dims(image, 0)
-
-            logits, endpoints = network_fn(img_name)
+            logits, endpoints = network_fn(img)
 
             if FLAGS.moving_average_decay:
                 variable_averages = tf.train.ExponentialMovingAverage(
