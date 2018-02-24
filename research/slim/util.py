@@ -11,7 +11,7 @@ def load_images(dir_path):
         [image_paths],
         shuffle=False)
     # image_paths_ph = tf.placeholder(tf.string, [len(image_paths)])
-    image = load_img(image[0])
+    image = load_img(tf.cast(image[0], tf.string))
     return image_names, image
 
 
