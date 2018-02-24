@@ -9,9 +9,9 @@ def load_images(dir_path):
     print(len(image_paths))
     image = tf.train.slice_input_producer(
         [image_paths],
-        shuffle=True)
+        shuffle=False)
     # image_paths_ph = tf.placeholder(tf.string, [len(image_paths)])
-    image = load_img(image)
+    image = load_img(image[0])
     return image_names, image
 
 
