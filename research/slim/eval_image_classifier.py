@@ -164,13 +164,13 @@ def main(_):
 
         tf.logging.info('Evaluating %s' % checkpoint_dir)
 
-        training.evaluate_repeatedly(
+        slim.evaluation.evaluation_loop(
             master=FLAGS.master,
             checkpoint_dir=checkpoint_dir,
-            # logdir=FLAGS.eval_dir,
-            # num_evals=num_batches,
-            # eval_op=list(names_to_updates.values()),
-            # variables_to_restore=variables_to_restore
+            logdir=FLAGS.eval_dir,
+            num_evals=num_batches,
+            eval_op=list(names_to_updates.values()),
+            variables_to_restore=variables_to_restore
         )
 
 
