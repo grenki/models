@@ -17,16 +17,16 @@
 from __future__ import division
 from __future__ import print_function
 
-import os
 import math
 
-import util
-import numpy as np
 import tensorflow as tf
+import tensorflow.contrib.slim as slim
+
 from nets import nets_factory
 from preprocessing import preprocessing_factory
 
-slim = tf.contrib.slim
+tf.app.flags.DEFINE_integer(
+    'eval_every_sec', 180, 'The number of samples in each batch.')
 
 tf.app.flags.DEFINE_integer(
     'batch_size', 50, 'The number of samples in each batch.')
@@ -39,9 +39,7 @@ tf.app.flags.DEFINE_string(
     'master', '', 'The address of the TensorFlow master to use.')
 
 tf.app.flags.DEFINE_string(
-    'checkpoint_path', '/tmp/tfmodel/',
-    'The directory where the model was written to or an absolute path to a '
-    'checkpoint file.')
+    'checkpoint_dir', None, '')
 
 tf.app.flags.DEFINE_string(
     'eval_dir', '/tmp/tfmodel/', 'Directory where the results are saved to.')
@@ -82,8 +80,10 @@ tf.app.flags.DEFINE_integer(
 
 FLAGS = tf.app.flags.FLAGS
 
-image_path = "/home/grenki/src/models/research/slim/d.png"
-NUM_CLASSES = 1001
+import util
+import os
+
+NUM_CLASSES = 2
 num_samples = 1700
 
 
@@ -91,85 +91,85 @@ def main(_):
     if not FLAGS.dataset_dir:
         raise ValueError('You must supply the dataset directory with --dataset_dir')
 
-    root_result_folder = os.path.join(FLAGS.dataset_dir, "features_vectors")
+    dataset_dir = os.path.join(FLAGS.dataset_dir, "features_vectors")
 
-    for dir in os.listdir(FLAGS.dataset_dir):
-        dir_path = os.path.join(FLAGS.dataset_dir, dir)
-        if not os.path.isdir(dir_path):
-            continue
+    tf.logging.set_verbosity(tf.logging.INFO)
+    with tf.Graph().as_default():
+        tf_global_step = slim.get_or_create_global_step()  # ####################
+        # # Select the model #
+        # ####################
+        network_fn = nets_factory.get_network_fn(
+            FLAGS.model_name,
+            num_classes=NUM_CLASSES,
+            is_training=False)
 
-        tf.logging.set_verbosity(tf.logging.INFO)
-        with tf.Graph().as_default():
-            tf_global_step = slim.get_or_create_global_step()  # ####################
-            # # Select the model #
-            # ####################
-            network_fn = nets_factory.get_network_fn(
-                FLAGS.model_name,
-                num_classes=NUM_CLASSES,
-                is_training=False)
+        image, label = util.load_dataset(dataset_dir)
 
-            image_names, image = util.load_images(dir_path)
-            if not image_names:
-                continue
+    #####################################
+    # Select the preprocessing function #
+    #####################################
+    preprocessing_name = FLAGS.preprocessing_name or FLAGS.model_name
+    image_preprocessing_fn = preprocessing_factory.get_preprocessing(
+        preprocessing_name,
+        is_training=False)
 
-            preprocessing_name = FLAGS.preprocessing_name or FLAGS.model_name
-            image_preprocessing_fn = preprocessing_factory.get_preprocessing(
-                preprocessing_name,
-                is_training=False)
+    eval_image_size = FLAGS.eval_image_size or network_fn.default_image_size
 
-            eval_image_size = FLAGS.eval_image_size or network_fn.default_image_size
+    image = image_preprocessing_fn(image, eval_image_size, eval_image_size)
 
-            image = image_preprocessing_fn(image, eval_image_size, eval_image_size)
+    images, labels = tf.train.batch(
+        [image, label],
+        batch_size=FLAGS.batch_size,
+        num_threads=FLAGS.num_preprocessing_threads,
+        capacity=5 * FLAGS.batch_size)
 
-            images = tf.train.batch(
-                [image],
-                batch_size=FLAGS.batch_size,
-                num_threads=FLAGS.num_preprocessing_threads,
-                capacity=5 * FLAGS.batch_size)
+    ####################
+    # Define the model #
+    ####################
+    logits, endpoints = network_fn(images)
 
-            ####################
-            # Define the model #
-            ####################
-            logits, endpoints = network_fn(images)
+    if FLAGS.moving_average_decay:
+        variable_averages = tf.train.ExponentialMovingAverage(
+            FLAGS.moving_average_decay, tf_global_step)
+        variables_to_restore = variable_averages.variables_to_restore(
+            slim.get_model_variables())
+        variables_to_restore[tf_global_step.op.name] = tf_global_step
+    else:
+        variables_to_restore = slim.get_variables_to_restore()
 
-            if FLAGS.moving_average_decay:
-                variable_averages = tf.train.ExponentialMovingAverage(
-                    FLAGS.moving_average_decay, tf_global_step)
-                variables_to_restore = variable_averages.variables_to_restore(
-                    slim.get_model_variables())
-                variables_to_restore[tf_global_step.op.name] = tf_global_step
-            else:
-                variables_to_restore = slim.get_variables_to_restore()
+    predictions = tf.argmax(logits, 1)
+    labels = tf.squeeze(labels)
 
+    # Define the metrics:
+    names_to_values, names_to_updates = slim.metrics.aggregate_metric_map({
+        'TestAccuracy': slim.metrics.streaming_accuracy(predictions, labels),
+    })
 
-            # TODO(sguada) use num_epochs=1
-            if FLAGS.max_num_batches:
-                num_batches = FLAGS.max_num_batches
-            else:
-                # This ensures that we make a single pass over all of the data.
-                num_batches = math.ceil(num_samples / float(FLAGS.batch_size))
+    # Print the summaries to screen.
+    for name, value in names_to_values.items():
+        summary_name = 'eval/%s' % name
+        op = tf.summary.scalar(summary_name, value, collections=[])
+        op = tf.Print(op, [value], summary_name)
+        tf.add_to_collection(tf.GraphKeys.SUMMARIES, op)
 
-            if tf.gfile.IsDirectory(FLAGS.checkpoint_path):
-                checkpoint_path = tf.train.latest_checkpoint(FLAGS.checkpoint_path)
-            else:
-                checkpoint_path = FLAGS.checkpoint_path
+    # TODO(sguada) use num_epochs=1
+    if FLAGS.max_num_batches:
+        num_batches = FLAGS.max_num_batches
+    else:
+        # This ensures that we make a single pass over all of the data.
+        num_batches = math.ceil(num_samples / float(FLAGS.batch_size))
 
-            tf.logging.info('Evaluating %s' % checkpoint_path)
+    checkpoint_dir = tf.train.latest_checkpoint(FLAGS.checkpoint_dir)
 
-            before_fc_tensor = endpoints["PreLogitsFlatten"]
-            before_fc = slim.evaluation.evaluate_once(master=FLAGS.master, checkpoint_path=checkpoint_path,
-                                                      logdir=FLAGS.eval_dir,
-                                                      num_evals=num_batches,
-                                                      final_op=before_fc_tensor,
-                                                      variables_to_restore=variables_to_restore)
+    tf.logging.info('Evaluating %s' % checkpoint_dir)
 
-            result_folder = os.path.join(root_result_folder, dir)
-            if not os.path.exists(result_folder):
-                os.makedirs(result_folder)
-            for img_name, arr in zip(image_names, before_fc):
-                np.save(os.path.join(result_folder, img_name), np.asarray(arr))
-
-                # print(before_fc)
+    slim.evaluation.evaluation_loop(
+        master=FLAGS.master,
+        checkpoint_dir=checkpoint_dir,
+        logdir=FLAGS.eval_dir,
+        num_evals=num_batches,
+        eval_op=list(names_to_updates.values()),
+        variables_to_restore=variables_to_restore)
 
 
 if __name__ == '__main__':
