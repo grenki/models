@@ -20,7 +20,6 @@ from __future__ import print_function
 import tensorflow as tf
 
 import util
-from datasets import dataset_factory
 from deployment import model_deploy
 from nets import nets_factory
 from preprocessing import preprocessing_factory
@@ -60,11 +59,11 @@ tf.app.flags.DEFINE_integer(
     'The frequency with which logs are print.')
 
 tf.app.flags.DEFINE_integer(
-    'save_summaries_secs', 600,
+    'save_summaries_secs', 60,
     'The frequency with which summaries are saved, in seconds.')
 
 tf.app.flags.DEFINE_integer(
-    'save_interval_secs', 600,
+    'save_interval_secs', 60,
     'The frequency with which the model is saved, in seconds.')
 
 tf.app.flags.DEFINE_integer(
@@ -134,7 +133,7 @@ tf.app.flags.DEFINE_string(
 tf.app.flags.DEFINE_float('learning_rate', 0.01, 'Initial learning rate.')
 
 tf.app.flags.DEFINE_float(
-    'end_learning_rate', 0.0001,
+    'end_learning_rate', 0.001,
     'The minimal end learning rate used by a polynomial decay learning rate.')
 
 tf.app.flags.DEFINE_float(
@@ -180,14 +179,14 @@ tf.app.flags.DEFINE_integer(
     'class for the ImageNet dataset.')
 
 tf.app.flags.DEFINE_string(
-    'model_name', 'inception_v3', 'The name of the architecture to train.')
+    'model_name', 'inception_v4', 'The name of the architecture to train.')
 
 tf.app.flags.DEFINE_string(
     'preprocessing_name', None, 'The name of the preprocessing to use. If left '
     'as `None`, then the model_name flag is used.')
 
 tf.app.flags.DEFINE_integer(
-    'batch_size', 2, 'The number of samples in each batch.')
+    'batch_size', 20, 'The number of samples in each batch.')
 
 tf.app.flags.DEFINE_integer(
     'train_image_size', None, 'Train image size')
@@ -426,8 +425,6 @@ def main(_):
     with tf.device(deploy_config.inputs_device()):
 
       image, label = util.load_dataset(FLAGS.dataset_dir)
-      label = tf.cast(label, tf.uint8)
-      image = tf.cast(image, tf.float32)
 
       train_image_size = FLAGS.train_image_size or network_fn.default_image_size
 
