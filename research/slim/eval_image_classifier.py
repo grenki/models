@@ -159,7 +159,7 @@ def main(_):
             # This ensures that we make a single pass over all of the data.
             num_batches = math.ceil(num_samples / float(FLAGS.batch_size))
 
-        checkpoint_dir = tf.train.latest_checkpoint(FLAGS.checkpoint_dir)
+        checkpoint_dir = FLAGS.checkpoint_dir
 
         tf.logging.info('Evaluating %s' % checkpoint_dir)
 
