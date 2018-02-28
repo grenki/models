@@ -168,7 +168,7 @@ def main(_):
             master=FLAGS.master,
             checkpoint_dir=checkpoint_path,
             logdir=FLAGS.eval_dir,
-            num_evals=100000,
+            num_evals=num_batches,
             eval_op=list(names_to_updates.values()),
             variables_to_restore=variables_to_restore
         )
