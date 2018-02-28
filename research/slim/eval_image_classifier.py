@@ -141,9 +141,13 @@ def main(_):
         predictions = tf.argmax(logits, 1)
         labels = tf.squeeze(labels)
 
+        one_hot_labels = slim.one_hot_encoding(labels, NUM_CLASSES)
+        softmax = tf.losses.softmax_cross_entropy(one_hot_labels, logits)
+
         # Define the metrics:
         names_to_values, names_to_updates = slim.metrics.aggregate_metric_map({
             'TestAccuracy': slim.metrics.streaming_accuracy(predictions, labels),
+            'TestLoss': slim.metrics.streaming_mean_tensor(softmax),
         })
 
         # Print the summaries to screen.
