@@ -105,71 +105,71 @@ def main(_):
 
         image, label = util.load_dataset(dataset_dir)
 
-    #####################################
-    # Select the preprocessing function #
-    #####################################
-    preprocessing_name = FLAGS.preprocessing_name or FLAGS.model_name
-    image_preprocessing_fn = preprocessing_factory.get_preprocessing(
-        preprocessing_name,
-        is_training=False)
+        #####################################
+        # Select the preprocessing function #
+        #####################################
+        preprocessing_name = FLAGS.preprocessing_name or FLAGS.model_name
+        image_preprocessing_fn = preprocessing_factory.get_preprocessing(
+            preprocessing_name,
+            is_training=False)
 
-    eval_image_size = FLAGS.eval_image_size or network_fn.default_image_size
+        eval_image_size = FLAGS.eval_image_size or network_fn.default_image_size
 
-    image = image_preprocessing_fn(image, eval_image_size, eval_image_size)
+        image = image_preprocessing_fn(image, eval_image_size, eval_image_size)
 
-    images, labels = tf.train.batch(
-        [image, label],
-        batch_size=FLAGS.batch_size,
-        num_threads=FLAGS.num_preprocessing_threads,
-        capacity=5 * FLAGS.batch_size)
+        images, labels = tf.train.batch(
+            [image, label],
+            batch_size=FLAGS.batch_size,
+            num_threads=FLAGS.num_preprocessing_threads,
+            capacity=5 * FLAGS.batch_size)
 
-    ####################
-    # Define the model #
-    ####################
-    logits, endpoints = network_fn(images)
+        ####################
+        # Define the model #
+        ####################
+        logits, endpoints = network_fn(images)
 
-    if FLAGS.moving_average_decay:
-        variable_averages = tf.train.ExponentialMovingAverage(
-            FLAGS.moving_average_decay, tf_global_step)
-        variables_to_restore = variable_averages.variables_to_restore(
-            slim.get_model_variables())
-        variables_to_restore[tf_global_step.op.name] = tf_global_step
-    else:
-        variables_to_restore = slim.get_variables_to_restore()
+        if FLAGS.moving_average_decay:
+            variable_averages = tf.train.ExponentialMovingAverage(
+                FLAGS.moving_average_decay, tf_global_step)
+            variables_to_restore = variable_averages.variables_to_restore(
+                slim.get_model_variables())
+            variables_to_restore[tf_global_step.op.name] = tf_global_step
+        else:
+            variables_to_restore = slim.get_variables_to_restore()
 
-    predictions = tf.argmax(logits, 1)
-    labels = tf.squeeze(labels)
+        predictions = tf.argmax(logits, 1)
+        labels = tf.squeeze(labels)
 
-    # Define the metrics:
-    names_to_values, names_to_updates = slim.metrics.aggregate_metric_map({
-        'TestAccuracy': slim.metrics.streaming_accuracy(predictions, labels),
-    })
+        # Define the metrics:
+        names_to_values, names_to_updates = slim.metrics.aggregate_metric_map({
+            'TestAccuracy': slim.metrics.streaming_accuracy(predictions, labels),
+        })
 
-    # Print the summaries to screen.
-    for name, value in names_to_values.items():
-        summary_name = 'eval/%s' % name
-        op = tf.summary.scalar(summary_name, value, collections=[])
-        op = tf.Print(op, [value], summary_name)
-        tf.add_to_collection(tf.GraphKeys.SUMMARIES, op)
+        # Print the summaries to screen.
+        for name, value in names_to_values.items():
+            summary_name = 'eval/%s' % name
+            op = tf.summary.scalar(summary_name, value, collections=[])
+            op = tf.Print(op, [value], summary_name)
+            tf.add_to_collection(tf.GraphKeys.SUMMARIES, op)
 
-    # TODO(sguada) use num_epochs=1
-    if FLAGS.max_num_batches:
-        num_batches = FLAGS.max_num_batches
-    else:
-        # This ensures that we make a single pass over all of the data.
-        num_batches = math.ceil(num_samples / float(FLAGS.batch_size))
+        # TODO(sguada) use num_epochs=1
+        if FLAGS.max_num_batches:
+            num_batches = FLAGS.max_num_batches
+        else:
+            # This ensures that we make a single pass over all of the data.
+            num_batches = math.ceil(num_samples / float(FLAGS.batch_size))
 
-    checkpoint_dir = tf.train.latest_checkpoint(FLAGS.checkpoint_dir)
+        checkpoint_dir = tf.train.latest_checkpoint(FLAGS.checkpoint_dir)
 
-    tf.logging.info('Evaluating %s' % checkpoint_dir)
+        tf.logging.info('Evaluating %s' % checkpoint_dir)
 
-    slim.evaluation.evaluation_loop(
-        master=FLAGS.master,
-        checkpoint_dir=checkpoint_dir,
-        logdir=FLAGS.eval_dir,
-        num_evals=num_batches,
-        eval_op=list(names_to_updates.values()),
-        variables_to_restore=variables_to_restore)
+        slim.evaluation.evaluation_loop(
+            master=FLAGS.master,
+            checkpoint_dir=checkpoint_dir,
+            logdir=FLAGS.eval_dir,
+            num_evals=num_batches,
+            eval_op=list(names_to_updates.values()),
+            variables_to_restore=variables_to_restore)
 
 
 if __name__ == '__main__':
