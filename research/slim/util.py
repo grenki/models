@@ -1,7 +1,15 @@
+from __future__ import division
+from __future__ import print_function
+
 import os
+import time
 
 import numpy as np
 import tensorflow as tf
+from tensorflow.core.protobuf import config_pb2
+from tensorflow.python.client import timeline
+from tensorflow.python.lib.io import file_io
+from tensorflow.python.platform import tf_logging as logging
 
 
 def load_images(dir_path):
@@ -54,5 +62,7 @@ def load_dataset(root_dir):
 
     img = load_img(result[0])
     label = result[1]
+    label = tf.cast(label, tf.uint8)
+    img = tf.cast(img, tf.float32)
 
     return img, label
