@@ -40,7 +40,7 @@ tf.app.flags.DEFINE_string(
     'master', '', 'The address of the TensorFlow master to use.')
 
 tf.app.flags.DEFINE_string(
-    'checkpoint_dir', None, '')
+    'checkpoint_path', None, '')
 
 tf.app.flags.DEFINE_string(
     'eval_dir', '/tmp/tfmodel/', 'Directory where the results are saved to.')
@@ -92,7 +92,7 @@ def main(_):
     if not FLAGS.dataset_dir:
         raise ValueError('You must supply the dataset directory with --dataset_dir')
 
-    dataset_dir = os.path.join(FLAGS.dataset_dir, "features_vectors")
+    dataset_dir = os.path.join(FLAGS.dataset_dir)
 
     tf.logging.set_verbosity(tf.logging.INFO)
     with tf.Graph().as_default():
@@ -160,13 +160,13 @@ def main(_):
             # This ensures that we make a single pass over all of the data.
             num_batches = math.ceil(num_samples / float(FLAGS.batch_size))
 
-        checkpoint_dir = FLAGS.checkpoint_dir
+        checkpoint_path = FLAGS.checkpoint_path
 
-        tf.logging.info('Evaluating %s' % checkpoint_dir)
+        tf.logging.info('Evaluating %s' % checkpoint_path)
 
         slim.evaluation.evaluation_loop(
             master=FLAGS.master,
-            checkpoint_dir=checkpoint_dir,
+            checkpoint_dir=checkpoint_path,
             logdir=FLAGS.eval_dir,
             num_evals=100000,
             eval_op=list(names_to_updates.values()),
