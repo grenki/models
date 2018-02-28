@@ -21,6 +21,7 @@ import math
 
 import tensorflow as tf
 import tensorflow.contrib.slim as slim
+import tensorflow.contrib.training as training
 
 from nets import nets_factory
 from preprocessing import preprocessing_factory
@@ -163,13 +164,14 @@ def main(_):
 
         tf.logging.info('Evaluating %s' % checkpoint_dir)
 
-        slim.evaluation.evaluation_loop(
+        training.evaluate_repeatedly(
             master=FLAGS.master,
             checkpoint_dir=checkpoint_dir,
-            logdir=FLAGS.eval_dir,
-            num_evals=num_batches,
-            eval_op=list(names_to_updates.values()),
-            variables_to_restore=variables_to_restore)
+            # logdir=FLAGS.eval_dir,
+            # num_evals=num_batches,
+            # eval_op=list(names_to_updates.values()),
+            # variables_to_restore=variables_to_restore
+        )
 
 
 if __name__ == '__main__':
