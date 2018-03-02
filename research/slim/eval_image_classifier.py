@@ -144,9 +144,10 @@ def main(_):
         softmax = tf.losses.softmax_cross_entropy(one_hot_labels, logits)
 
         evals = []
-        evals.append(tf.Print(one_hot_labels, [one_hot_labels], 'one hot'))
-        evals.append(tf.Print(logits, [logits], 'logits'))
-        evals.append(tf.Print(softmax, [softmax], 'softmax'))
+        evals.append(tf.Print(predictions, [predictions], 'predictions', summarize=30))
+        evals.append(tf.Print(one_hot_labels, [one_hot_labels], 'one hot', summarize=30))
+        evals.append(tf.Print(logits, [logits], 'logits', summarize=30))
+        evals.append(tf.Print(softmax, [softmax], 'softmax', summarize=30))
 
         # Define the metrics:
         names_to_values, names_to_updates = slim.metrics.aggregate_metric_map({
