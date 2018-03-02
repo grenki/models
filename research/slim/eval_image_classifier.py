@@ -21,7 +21,6 @@ import math
 
 import tensorflow as tf
 import tensorflow.contrib.slim as slim
-import tensorflow.contrib.training as training
 
 from nets import nets_factory
 from preprocessing import preprocessing_factory
@@ -144,6 +143,11 @@ def main(_):
         one_hot_labels = slim.one_hot_encoding(labels, NUM_CLASSES)
         softmax = tf.losses.softmax_cross_entropy(one_hot_labels, logits)
 
+        evals = []
+        evals.append(tf.Print(one_hot_labels, one_hot_labels, 'one hot'))
+        evals.append(tf.Print(logits, logits, 'logits'))
+        evals.append(tf.Print(softmax, softmax, 'softmax'))
+
         # Define the metrics:
         names_to_values, names_to_updates = slim.metrics.aggregate_metric_map({
             'TestAccuracy': slim.metrics.streaming_accuracy(predictions, labels),
@@ -173,7 +177,7 @@ def main(_):
             checkpoint_dir=checkpoint_path,
             logdir=FLAGS.eval_dir,
             num_evals=num_batches,
-            eval_op=list(names_to_updates.values()),
+            eval_op=list(names_to_updates.values()) + evals,
             variables_to_restore=variables_to_restore
         )
 
