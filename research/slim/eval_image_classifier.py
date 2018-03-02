@@ -144,6 +144,7 @@ def main(_):
         softmax = tf.losses.softmax_cross_entropy(one_hot_labels, logits)
 
         evals = []
+        evals.append(tf.Print(predictions, [labels], 'labels', summarize=30))
         evals.append(tf.Print(predictions, [predictions], 'predictions', summarize=30))
         evals.append(tf.Print(one_hot_labels, [one_hot_labels], 'one hot', summarize=30))
         evals.append(tf.Print(logits, [logits], 'logits', summarize=30))
