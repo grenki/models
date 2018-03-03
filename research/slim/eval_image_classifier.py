@@ -142,7 +142,7 @@ def main(_):
 
         one_hot_labels = slim.one_hot_encoding(labels, NUM_CLASSES)
         softmax = tf.losses.softmax_cross_entropy(one_hot_labels, logits, loss_collection=None)
-        softmax2 = tf.nn.softmax_cross_entropy_with_logits(one_hot_labels, logits)
+        softmax2 = tf.nn.softmax_cross_entropy_with_logits(labels=one_hot_labels, logits=logits)
 
         evals = []
         evals.append(tf.Print(predictions, [labels], 'labels', summarize=30))
