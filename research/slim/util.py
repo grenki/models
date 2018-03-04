@@ -52,13 +52,13 @@ def load_dataset(root_dir):
         res_labels.extend(np.uint8(labels))
 
     # todo remove (debug)
-    res_img_paths = res_img_paths[:20]
-    res_labels= res_img_paths[:20]
+    res_img_paths = res_img_paths[:4]
+    res_labels= res_img_paths[:4]
 
     res_img_paths = tf.constant(res_img_paths, dtype=tf.string)
     result = tf.train.slice_input_producer(
         [res_img_paths, res_labels],
-        shuffle=True)
+        shuffle=False)
 
     img = result[0]
     print(img.dtype)
