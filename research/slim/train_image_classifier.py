@@ -375,6 +375,8 @@ def _get_variables_to_train():
   for scope in scopes:
     variables = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope)
     variables_to_train.extend(variables)
+
+  variables_to_train = [v for v in variables_to_train if str(v.name).find('atch') < 0]
   return variables_to_train
 
 num_classes = 2
