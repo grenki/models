@@ -52,8 +52,8 @@ def load_dataset(root_dir):
         res_labels.extend(np.uint8(labels))
 
     # todo remove (debug)
-    res_img_paths = res_img_paths[:4]
-    res_labels= res_img_paths[:4]
+    res_img_paths = res_img_paths[:20]
+    res_labels= res_labels[:20]
 
     res_img_paths = tf.constant(res_img_paths, dtype=tf.string)
     result = tf.train.slice_input_producer(
