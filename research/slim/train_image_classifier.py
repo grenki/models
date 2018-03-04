@@ -448,6 +448,10 @@ def main(_):
       images, labels = batch_queue.dequeue()
       logits, end_points = network_fn(images)
 
+      logits = tf.Print(logits, [logits, end_points['Predictions']], 'lg,pr', summarize=60)
+      softmax = tf.losses.softmax_cross_entropy(labels, logits, loss_collection=None)
+      logits = tf.Print(logits, [softmax], 'softmax', summarize=60)
+
       #############################
       # Specify the loss function #
       #############################
