@@ -457,8 +457,8 @@ def main(_):
             label_smoothing=FLAGS.label_smoothing, weights=0.4,
             scope='aux_loss')
       tf.losses.softmax_cross_entropy(labels, logits, label_smoothing=FLAGS.label_smoothing, weights=1.0)
-      acc = slim.metrics.streaming_accuracy(end_points['Predictions'], labels)[0]
-      summaries.add(tf.summary.scalar('Accuracy/%s' % acc.name, acc))
+      # acc = slim.metrics.streaming_accuracy(end_points['Predictions'], labels)[0]
+      # summaries.add(tf.summary.scalar('Accuracy/%s' % acc.name, acc))
       return end_points
 
     clones = model_deploy.create_clones(deploy_config, clone_fn, [batch_queue])
