@@ -26,7 +26,7 @@ def load_img(img_path):
 
 
 def get_images_names_and_paths(dir_path):
-    image_names = [f for f in os.listdir(dir_path) if f.endswith(".png")]
+    image_names = [f for f in sorted(os.listdir(dir_path)) if f.endswith(".png")]
     image_paths = [os.path.join(dir_path, f) for f in image_names]
     return image_names, image_paths
 
