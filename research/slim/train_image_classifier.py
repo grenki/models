@@ -440,9 +440,9 @@ def main(_):
       batch_queue = slim.prefetch_queue.prefetch_queue(
           [images, labels], capacity=2 * deploy_config.num_clones)
 
-    ####################
-    # Define the model #
-    ####################
+    # Gather initial summaries.1
+    summaries = set(tf.get_collection(tf.GraphKeys.SUMMARIES))
+
     def clone_fn(batch_queue):
       """Allows data parallelism by creating multiple clones of network_fn."""
       images, labels = batch_queue.dequeue()
@@ -456,12 +456,10 @@ def main(_):
             labels, end_points['AuxLogits'],
             label_smoothing=FLAGS.label_smoothing, weights=0.4,
             scope='aux_loss')
-        tf.losses.softmax_cross_entropy(
-            labels, logits, label_smoothing=FLAGS.label_smoothing, weights=1.0)
+      tf.losses.softmax_cross_entropy(labels, logits, label_smoothing=FLAGS.label_smoothing, weights=1.0)
+      acc = slim.metrics.streaming_accuracy(end_points['Predictions'], labels)
+      summaries.add(tf.summary.scalar('Accuracy/%s' % acc.name, acc))
       return end_points
-
-    # Gather initial summaries.
-    summaries = set(tf.get_collection(tf.GraphKeys.SUMMARIES))
 
     clones = model_deploy.create_clones(deploy_config, clone_fn, [batch_queue])
     first_clone_scope = deploy_config.clone_scope(0)
