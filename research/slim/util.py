@@ -73,3 +73,7 @@ def load_dataset(root_dir):
     img = tf.cast(img, tf.float32)
 
     return img, label
+
+
+def get_var(name):
+    return [v for v in tf.global_variables() if v.name == name][0]

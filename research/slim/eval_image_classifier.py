@@ -150,6 +150,10 @@ def main(_):
         evals.append(tf.Print(one_hot_labels, [one_hot_labels], 'one hot', summarize=30))
         evals.append(tf.Print(logits, [logits], 'logits', summarize=30))
         evals.append(tf.Print(softmax, [softmax], 'softmax', summarize=30))
+        mean = util.get_var(u'InceptionV4/Mixed_6g/Branch_2/Conv2d_0c_1x7/BatchNorm/moving_mean:0')
+        variance = util.get_var(u'InceptionV4/Mixed_6g/Branch_2/Conv2d_0c_1x7/BatchNorm/moving_variance:0')
+        beta = util.get_var(u'InceptionV4/Mixed_6g/Branch_2/Conv2d_0c_1x7/BatchNorm/beta:0')
+        tf.Print(logits, [mean, variance, beta])
         # evals.append(tf.Print(predictions, [softmax2], 'softmax2', summarize=30))
 
         # Define the metrics:
