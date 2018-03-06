@@ -51,6 +51,10 @@ def load_dataset(root_dir):
         res_img_paths.extend(image_paths)
         res_labels.extend(np.uint8(labels))
 
+        break
+
+    print(len(res_img_paths))
+
     # todo remove (debug)
     # res_img_paths = res_img_paths[:20]
     # res_labels= res_labels[:20]
