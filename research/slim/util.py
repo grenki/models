@@ -36,7 +36,7 @@ def load_dataset(root_dir):
     res_img_paths = []
     res_labels = []
 
-    for dir in os.listdir(root_dir):
+    for dir in sorted(os.listdir(root_dir)):
         dir_path = os.path.join(root_dir, dir)
 
         if not os.path.isdir(dir_path):
