@@ -90,3 +90,14 @@ ENV/
 
 # PyCharm
 .idea/
+d.jpg
+d.png
+dataset/
+init.html
+init.txt
+post.sh
+research/slim/Untitled.ipynb
+research/slim/labels.txt
+research/slim/run_eval.sh
+research/slim/run_train.sh
+research/slim/train_image_classifier_old.py
