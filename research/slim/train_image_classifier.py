@@ -26,7 +26,7 @@ from preprocessing import preprocessing_factory
 
 import tensorflow.contrib.slim as slim
 
-from slim import common
+import common
 
 tf.app.flags.DEFINE_string(
     'master', '', 'The address of the TensorFlow master to use.')

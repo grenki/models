@@ -24,7 +24,7 @@ import tensorflow.contrib.slim as slim
 
 from nets import nets_factory
 from preprocessing import preprocessing_factory
-from slim import common
+import common
 
 tf.app.flags.DEFINE_integer(
     'eval_every_sec', 180, 'The number of samples in each batch.')
