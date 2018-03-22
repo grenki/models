@@ -26,6 +26,8 @@ from preprocessing import preprocessing_factory
 
 import tensorflow.contrib.slim as slim
 
+from slim import common
+
 tf.app.flags.DEFINE_string(
     'master', '', 'The address of the TensorFlow master to use.')
 
@@ -458,7 +460,7 @@ def main(_):
       # beta = util.get_var(u'InceptionV4/Mixed_6g/Branch_2/Conv2d_0c_1x7/BatchNorm/beta:0')
       # logits = tf.1Print(logits, [mean, variance, beta])
       for name, v in end_points.items():
-          logits = tf.Print(logits, [v], name, summarize=5)
+          logits = tf.Print(logits, [v], name, summarize=common.SUMMARIZE_COUNT)
       #############################
       # Specify the loss function #
       #############################
