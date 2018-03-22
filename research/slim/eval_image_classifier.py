@@ -108,14 +108,8 @@ def main(_):
         #####################################
         # Select the preprocessing function #
         #####################################
-        preprocessing_name = FLAGS.preprocessing_name or FLAGS.model_name
-        image_preprocessing_fn = preprocessing_factory.get_preprocessing(
-            preprocessing_name,
-            is_training=False)
 
-        eval_image_size = FLAGS.eval_image_size or network_fn.default_image_size
-
-        image = image_preprocessing_fn(image, eval_image_size, eval_image_size)
+        image = util.preprocessing(image, network_fn, FLAGS)
 
         images, labels = tf.train.batch(
             [image, label],

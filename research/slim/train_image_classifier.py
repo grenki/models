@@ -418,31 +418,24 @@ def main(_):
     #####################################
     # Select the preprocessing function #
     #####################################
-    preprocessing_name = FLAGS.preprocessing_name or FLAGS.model_name
-    image_preprocessing_fn = preprocessing_factory.get_preprocessing(
-        preprocessing_name,
-        is_training=True)
 
     ##############################################################
     # Create a dataset provider that loads data from the dataset #
     ##############################################################
     with tf.device(deploy_config.inputs_device()):
 
-      image, label = util.load_dataset(FLAGS.dataset_dir)
+        image, label = util.load_dataset(FLAGS.dataset_dir)
 
-      train_image_size = FLAGS.train_image_size or network_fn.default_image_size
-
-      image = image_preprocessing_fn(image, train_image_size, train_image_size)
-
-      images, labels = tf.train.batch(
-          [image, label],
-          batch_size=FLAGS.batch_size,
-          num_threads=FLAGS.num_preprocessing_threads,
-          capacity=5 * FLAGS.batch_size)
-      labels = slim.one_hot_encoding(
-          labels, num_classes)
-      batch_queue = slim.prefetch_queue.prefetch_queue(
-          [images, labels], capacity=2 * deploy_config.num_clones)
+        image = util.preprocessing(image, network_fn, FLAGS)
+        images, labels = tf.train.batch(
+            [image, label],
+            batch_size=FLAGS.batch_size,
+            num_threads=FLAGS.num_preprocessing_threads,
+            capacity=5 * FLAGS.batch_size)
+        labels = slim.one_hot_encoding(
+            labels, num_classes)
+        batch_queue = slim.prefetch_queue.prefetch_queue(
+            [images, labels], capacity=2 * deploy_config.num_clones)
 
     # Gather initial summaries.1
     summaries = set(tf.get_collection(tf.GraphKeys.SUMMARIES))

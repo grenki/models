@@ -6,6 +6,8 @@ import os
 import numpy as np
 import tensorflow as tf
 
+import preprocessing.preprocessing_factory as preprocessing_factory
+
 
 def load_images(dir_path):
     image_names, image_paths = get_images_names_and_paths(dir_path)
@@ -84,3 +86,13 @@ def get_var(name):
 
 def image_info(image):
     return tf.reduce_mean(image), tf.reduce_max(image), tf.reduce_min(image)
+
+
+def preprocessing(image, network_fn, FLAGS):
+    train_image_size = FLAGS.train_image_size or network_fn.default_image_size
+
+    preprocessing_name = FLAGS.preprocessing_name or FLAGS.model_name
+    image_preprocessing_fn = preprocessing_factory.get_preprocessing(
+        preprocessing_name,
+        is_training=True)
+    return image_preprocessing_fn(image, train_image_size, train_image_size)
