@@ -452,8 +452,8 @@ def main(_):
       images, labels = batch_queue.dequeue()
       logits, end_points = network_fn(images)
 
-      logits = tf.Print(logits, [logits, end_points['Predictions']], 'lg,pr', summarize=60)
-      softmax = tf.losses.softmax_cross_entropy(tf.cast(labels, tf.float32), logits, loss_collection=None)
+      # logits = tf.Print(logits, [logits, end_points['Predictions']], 'lg,pr', summarize=60)
+      # softmax = tf.losses.softmax_cross_entropy(tf.cast(labels, tf.float32), logits, loss_collection=None)
       # logits = tf.Print(logits, [softmax], 'softmax', summarize=60)
       # mean = util.get_var(u'InceptionV4/Mixed_6g/Branch_2/Conv2d_0c_1x7/BatchNorm/moving_mean:0')
       # variance = util.get_var(u'InceptionV4/Mixed_6g/Branch_2/Conv2d_0c_1x7/BatchNorm/moving_variance:0')
