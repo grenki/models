@@ -452,8 +452,8 @@ def main(_):
       # variance = util.get_var(u'InceptionV4/Mixed_6g/Branch_2/Conv2d_0c_1x7/BatchNorm/moving_variance:0')
       # beta = util.get_var(u'InceptionV4/Mixed_6g/Branch_2/Conv2d_0c_1x7/BatchNorm/beta:0')
       # logits = tf.1Print(logits, [mean, variance, beta])
-      logits = tf.Print(logits, util.image_info(images), "images_info")
-      logits = tf.Print(logits, [images], "images", summarize=common.SUMMARIZE_COUNT)
+      # logits = tf.Print(logits, util.image_info(images), "images_info")
+      # logits = tf.Print(logits, [images], "images", summarize=common.SUMMARIZE_COUNT)
       # for name, v in end_points.items():
       #     logits = tf.Print(logits, [v], name, summarize=common.SUMMARIZE_COUNT)
       #############################
