@@ -569,4 +569,13 @@ def main(_):
 
 
 if __name__ == '__main__':
-  tf.app.run()
+    gpu_id = 0
+    print ('Running on GPU ' + str(gpu_id))
+
+    config = tf.ConfigProto()
+    config.gpu_options.allow_growth = True
+    config.log_device_placement = True
+    config.allow_soft_placement = True
+
+    with tf.device('/gpu:' + str(gpu_id)):
+        tf.app.run()
