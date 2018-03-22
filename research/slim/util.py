@@ -94,5 +94,5 @@ def preprocessing(image, network_fn, FLAGS):
     preprocessing_name = FLAGS.preprocessing_name or FLAGS.model_name
     image_preprocessing_fn = preprocessing_factory.get_preprocessing(
         preprocessing_name,
-        is_training=True)
+        is_training=False)
     return image_preprocessing_fn(image, train_image_size, train_image_size)
