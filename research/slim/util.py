@@ -81,3 +81,6 @@ def load_dataset(root_dir):
 
 def get_var(name):
     return [v for v in tf.global_variables() if v.name == name][0]
+
+def image_info(image):
+    return tf.reduce_mean(image), tf.argmax(image), tf.argmin(image)

@@ -14,17 +14,16 @@
 # ==============================================================================
 """Generic evaluation script that evaluates a model using a given dataset."""
 
-from __future__ import division
-from __future__ import print_function
+from __future__ import division, print_function
 
 import math
 
 import tensorflow as tf
 import tensorflow.contrib.slim as slim
 
+import common
 from nets import nets_factory
 from preprocessing import preprocessing_factory
-import common
 
 tf.app.flags.DEFINE_integer(
     'eval_every_sec', 180, 'The number of samples in each batch.')
@@ -146,6 +145,7 @@ def main(_):
         softmax2 = tf.nn.softmax_cross_entropy_with_logits(labels=one_hot_labels, logits=logits)
 
         evals = []
+        evals.append(tf.Print(images, util.image_info(images), "images_info"))
         evals.append(tf.Print(images, [images], "images"))
         # evals.append(tf.Print(predictions, [labels], 'labels', summarize=30))
         # evals.append(tf.Print(predictions, [predictions], 'predictions', summarize=30))
