@@ -89,7 +89,7 @@ def image_info(image):
 
 
 def preprocessing(image, network_fn, FLAGS):
-    train_image_size = FLAGS.train_image_size or network_fn.default_image_size
+    train_image_size = FLAGS.image_size or network_fn.default_image_size
 
     preprocessing_name = FLAGS.preprocessing_name or FLAGS.model_name
     image_preprocessing_fn = preprocessing_factory.get_preprocessing(

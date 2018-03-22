@@ -76,7 +76,7 @@ tf.app.flags.DEFINE_float(
     'If left as None, then moving averages are not used.')
 
 tf.app.flags.DEFINE_integer(
-    'eval_image_size', None, 'Eval image size')
+    'image_size', None, 'Eval image size')
 
 FLAGS = tf.app.flags.FLAGS
 
