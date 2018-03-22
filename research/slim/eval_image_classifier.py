@@ -150,11 +150,14 @@ def main(_):
         # evals.append(tf.Print(one_hot_labels, [one_hot_labels], 'one hot', summarize=30))
         # evals.append(tf.Print(logits, [logits], 'logits', summarize=30))
         # evals.append(tf.Print(softmax, [softmax], 'softmax', summarize=30))
-        mean = util.get_var(u'InceptionV4/Mixed_6g/Branch_2/Conv2d_0c_1x7/BatchNorm/moving_mean:0')
-        variance = util.get_var(u'InceptionV4/Mixed_6g/Branch_2/Conv2d_0c_1x7/BatchNorm/moving_variance:0')
-        beta = util.get_var(u'InceptionV4/Mixed_6g/Branch_2/Conv2d_0c_1x7/BatchNorm/beta:0')
-        evals.append(tf.Print(logits, [mean, variance, beta]))
+        # mean = util.get_var(u'InceptionV4/Mixed_6g/Branch_2/Conv2d_0c_1x7/BatchNorm/moving_mean:0')
+        # variance = util.get_var(u'InceptionV4/Mixed_6g/Branch_2/Conv2d_0c_1x7/BatchNorm/moving_variance:0')
+        # beta = util.get_var(u'InceptionV4/Mixed_6g/Branch_2/Conv2d_0c_1x7/BatchNorm/beta:0')
+        # evals.append(tf.Print(logits, [mean, variance, beta]))
         # evals.append(tf.Print(predictions, [softmax2], 'softmax2', summarize=30))
+
+        for name, v in endpoints.items():
+            evals.append(tf.Print(v, [v], name, summarize=5))
 
         # Define the metrics:
         names_to_values, names_to_updates = slim.metrics.aggregate_metric_map({
