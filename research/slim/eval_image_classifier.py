@@ -146,6 +146,7 @@ def main(_):
         softmax2 = tf.nn.softmax_cross_entropy_with_logits(labels=one_hot_labels, logits=logits)
 
         evals = []
+        evals.append(tf.Print(images, [images], "images"))
         # evals.append(tf.Print(predictions, [labels], 'labels', summarize=30))
         # evals.append(tf.Print(predictions, [predictions], 'predictions', summarize=30))
         # evals.append(tf.Print(one_hot_labels, [one_hot_labels], 'one hot', summarize=30))
