@@ -140,7 +140,7 @@ def main(_):
 
         evals = []
         evals.append(tf.Print(images, util.image_info(images), "images_info"))
-        evals.append(tf.Print(images, [images], "images"))
+        evals.append(tf.Print(images, [images], "images", summarize=common.SUMMARIZE_COUNT))
         # evals.append(tf.Print(predictions, [labels], 'labels', summarize=30))
         # evals.append(tf.Print(predictions, [predictions], 'predictions', summarize=30))
         # evals.append(tf.Print(one_hot_labels, [one_hot_labels], 'one hot', summarize=30))
