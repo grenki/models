@@ -461,8 +461,8 @@ def main(_):
       # logits = tf.1Print(logits, [mean, variance, beta])
       logits = tf.Print(logits, util.image_info(images), "images_info")
       logits = tf.Print(logits, [images], "images")
-      for name, v in end_points.items():
-          logits = tf.Print(logits, [v], name, summarize=common.SUMMARIZE_COUNT)
+      # for name, v in end_points.items():
+      #     logits = tf.Print(logits, [v], name, summarize=common.SUMMARIZE_COUNT)
       #############################
       # Specify the loss function #
       #############################

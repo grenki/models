@@ -158,8 +158,8 @@ def main(_):
         # evals.append(tf.Print(logits, [mean, variance, beta]))
         # evals.append(tf.Print(predictions, [softmax2], 'softmax2', summarize=30))
 
-        for name, v in endpoints.items():
-            evals.append(tf.Print(v, [v], name, summarize=common.SUMMARIZE_COUNT))
+        # for name, v in endpoints.items():
+        #     evals.append(tf.Print(v, [v], name, summarize=common.SUMMARIZE_COUNT))
 
         # Define the metrics:
         names_to_values, names_to_updates = slim.metrics.aggregate_metric_map({
