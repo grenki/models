@@ -139,12 +139,12 @@ def main(_):
         softmax2 = tf.nn.softmax_cross_entropy_with_logits(labels=one_hot_labels, logits=logits)
 
         evals = []
+        evals.append(tf.Print(logits, [logits], 'logits', summarize=30))
+        evals.append(tf.Print(predictions, [predictions], 'predictions', summarize=30))
+        # evals.append(tf.Print(predictions, [labels], 'labels', summarize=30))
         evals.append(tf.Print(images, util.image_info(images), "images_info"))
         evals.append(tf.Print(images, [images], "images", summarize=common.SUMMARIZE_COUNT))
-        # evals.append(tf.Print(predictions, [labels], 'labels', summarize=30))
-        # evals.append(tf.Print(predictions, [predictions], 'predictions', summarize=30))
         # evals.append(tf.Print(one_hot_labels, [one_hot_labels], 'one hot', summarize=30))
-        # evals.append(tf.Print(logits, [logits], 'logits', summarize=30))
         # evals.append(tf.Print(softmax, [softmax], 'softmax', summarize=30))
         # mean = util.get_var(u'InceptionV4/Mixed_6g/Branch_2/Conv2d_0c_1x7/BatchNorm/moving_mean:0')
         # variance = util.get_var(u'InceptionV4/Mixed_6g/Branch_2/Conv2d_0c_1x7/BatchNorm/moving_variance:0')
