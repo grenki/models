@@ -103,7 +103,7 @@ def main(_):
             num_classes=NUM_CLASSES,
             is_training=False)
 
-        image, label = util.load_dataset(dataset_dir)
+        image, label = util.load_dataset(dataset_dir, train=False)
 
         #####################################
         # Select the preprocessing function #

@@ -424,7 +424,7 @@ def main(_):
     ##############################################################
     with tf.device(deploy_config.inputs_device()):
 
-        image, label = util.load_dataset(FLAGS.dataset_dir)
+        image, label = util.load_dataset(FLAGS.dataset_dir, train=True)
 
         image = util.preprocessing(image, network_fn, FLAGS)
         images, labels = tf.train.batch(

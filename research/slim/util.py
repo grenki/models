@@ -1,5 +1,4 @@
-from __future__ import division
-from __future__ import print_function
+from __future__ import division, print_function
 
 import os
 
@@ -33,12 +32,15 @@ def get_images_names_and_paths(dir_path):
     return image_names, image_paths
 
 
-def load_dataset(root_dir):
+def load_dataset(root_dir, train=True):
     labels_folder = os.path.join(root_dir, 'labels')
     res_img_paths = []
     res_labels = []
 
-    for dir in sorted(os.listdir(root_dir)):
+    folders = sorted(os.listdir(root_dir))
+    thresh = 10
+    folders = folders[0:thresh] if train else folders[thresh:]
+    for dir in folders:
         dir_path = os.path.join(root_dir, dir)
 
         if not os.path.isdir(dir_path):
@@ -48,7 +50,11 @@ def load_dataset(root_dir):
         if not image_paths:
             continue
 
-        labels = np.load(os.path.join(labels_folder, dir + '.npy'))
+        labels_file = os.path.join(labels_folder, dir + '.npy')
+        if not os.path.exists(labels_file):
+            continue
+
+        labels = np.load(labels_file)
 
         res_img_paths.extend(image_paths)
         res_labels.extend(np.uint8(labels))
@@ -81,6 +87,7 @@ def load_dataset(root_dir):
 
 def get_var(name):
     return [v for v in tf.global_variables() if v.name == name][0]
+
 
 def image_info(image):
     return tf.reduce_mean(image), tf.reduce_max(image), tf.reduce_min(image)
