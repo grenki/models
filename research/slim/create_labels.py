@@ -10,6 +10,10 @@ data_folder = '/arc/airplanes'
 bridge_labels = os.path.join(data_folder, 'bridge')
 plane_labels = os.path.join(data_folder, 'plane')
 
+for f in [bridge_labels, plane_labels]:
+    if not os.path.exists(f):
+        os.mkdir(f)
+
 file = 'chunk_14.mp4.json'
 if len(sys.argv) > 1:
     file = sys.argv[1]
@@ -46,7 +50,7 @@ def process_one(name, v):
 
     res = get_res(count, ends, starts)
 
-    np.save(os.path.join(plane_labels, str(index) + '.npz'), res)
+    np.save(os.path.join(plane_labels, str(index)), res)
 
 
 def get_res(count, ends, starts):
